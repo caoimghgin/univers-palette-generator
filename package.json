@@ -23,7 +23,7 @@
     ],
     "id": "univers-palette-generator",
     "name": "Univers Palette Generator",
-    "main": "src/App.tsx",
-    "ui": "src/plugin/controller.tsx"
+    "main": "src/plugin/controller.tsx",
+    "ui": "src/App.tsx"
   }
 }

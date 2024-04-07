@@ -1,31 +1,58 @@
-import { once, showUI } from '@create-figma-plugin/utilities'
+import {
+  Button,
+  Columns,
+  Container,
+  Muted,
+  render,
+  Text,
+  TextboxNumeric,
+  VerticalSpace
+} from '@create-figma-plugin/ui'
+import { emit } from '@create-figma-plugin/utilities'
+import { h } from 'preact'
+import { useCallback, useState } from 'preact/hooks'
 
 import { CloseHandler, CreateRectanglesHandler } from './events/handlers'
 
-export default function () {
-  once<CreateRectanglesHandler>('CREATE_RECTANGLES', function (count: number) {
-    const nodes: Array<SceneNode> = []
-    for (let i = 0; i < count; i++) {
-      const rect = figma.createRectangle()
-      rect.x = i * 150
-      rect.fills = [
-        {
-          color: { b: 0, g: 0.5, r: 1 },
-          type: 'SOLID'
-        }
-      ]
-      figma.currentPage.appendChild(rect)
-      nodes.push(rect)
-    }
-    figma.currentPage.selection = nodes
-    figma.viewport.scrollAndZoomIntoView(nodes)
-    figma.closePlugin()
-  })
-  once<CloseHandler>('CLOSE', function () {
-    figma.closePlugin()
-  })
-  showUI({
-    height: 137,
-    width: 240
-  })
+function Plugin() {
+  const [count, setCount] = useState<number | null>(5)
+  const [countString, setCountString] = useState('5')
+  const handleCreateRectanglesButtonClick = useCallback(
+    function () {
+      if (count !== null) {
+        emit<CreateRectanglesHandler>('CREATE_RECTANGLES', count)
+      }
+    },
+    [count]
+  )
+  const handleCloseButtonClick = useCallback(function () {
+    emit<CloseHandler>('CLOSE')
+  }, [])
+  return (
+    <Container space="medium">
+      <VerticalSpace space="large" />
+      <Text>
+        <Muted>Count</Muted>
+      </Text>
+      <VerticalSpace space="small" />
+      <TextboxNumeric
+        onNumericValueInput={setCount}
+        onValueInput={setCountString}
+        value={countString}
+        variant="border"
+      />
+      <VerticalSpace space="extraLarge" />
+      <Columns space="extraSmall">
+        <Button fullWidth onClick={handleCreateRectanglesButtonClick}>
+          Create
+        </Button>
+        <Button fullWidth onClick={handleCloseButtonClick} secondary>
+          Close
+        </Button>
+      </Columns>
+      <VerticalSpace space="small" />
+    </Container>
+  )
 }
+
+export default render(Plugin)
