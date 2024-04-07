@@ -15,7 +15,7 @@ import { getLocalVariable, getLocalVariables } from './utilities/getVariable'
 
 export default function () {
 
-  showUI({ height: 660, width: 500 })
+  showUI({ height: 490, width: 500 })
 
   on<GetEnvironmentEvent>('GET_ENVIRONMENT', async () => {
       const palette = variableCollectionExists(paletteCollectionName)
@@ -24,24 +24,20 @@ export default function () {
   });
 
   on<CreateSwatchesEvent>('CREATE_SWATCHES', async ({grid, props}) => {
-      await loadFonts()
-      if (grid.optimization === "Univers") {
-          if (isAction(props, "PALETTE")) createPaletteVariables(grid)
-          if (isAction(props, "CONTEXTUAL")) createContextualVariables(grid.optimization)
-          if (isAction(props, "DRAW")) createPaletteVariablesSwatches(grid, props.type)
-          createDimensionVariables()
-          figma.closePlugin()
-          return
-      }
 
-      if (grid.optimization === "Popism") {
-          if (isAction(props, "PALETTE")) createPaletteVariables(grid)
-          if (isAction(props, "CONTEXTUAL")) createContextualVariables(grid.optimization)
-          if (isAction(props, "DRAW")) createPaletteVariablesSwatches(grid, props.type)
-          createDimensionVariables()
-          figma.closePlugin()
-          return
-      }
+      await loadFonts()
+
+      console.log("GRID:", grid)
+      console.log("PROPS:", props)
+
+      // if (grid.optimization === "Univers") {
+      //     if (isAction(props, "PALETTE")) createPaletteVariables(grid)
+      //     // if (isAction(props, "CONTEXTUAL")) createContextualVariables(grid.optimization)
+      //     // if (isAction(props, "DRAW")) createPaletteVariablesSwatches(grid, props.type)
+      //     // createDimensionVariables()
+      //     figma.closePlugin()
+      //     return
+      // }
 
       if (isType(props, "VARIABLES")) {
 
@@ -54,7 +50,7 @@ export default function () {
               if (isAction(props, "PALETTE")) createPaletteVariables(grid)
               if (isAction(props, "CONTEXTUAL")) createContextualVariables(null)
               if (isAction(props, "DRAW")) createPaletteVariablesSwatches(grid, props.type)
-              createDimensionVariables()
+              // createDimensionVariables()
           }
 
       } else if (isType(props, "STYLES")) {
@@ -68,28 +64,7 @@ export default function () {
       figma.closePlugin()
   });
 
-  once<CreateRectanglesHandler>('CREATE_RECTANGLES', function (count: number) {
-    const nodes: Array<SceneNode> = []
-    for (let i = 0; i < count; i++) {
-      const rect = figma.createRectangle()
-      rect.x = i * 150
-      rect.fills = [
-        {
-          color: { b: 0, g: 0.5, r: 1 },
-          type: 'SOLID'
-        }
-      ]
-      figma.currentPage.appendChild(rect)
-      nodes.push(rect)
-    };
-    figma.currentPage.selection = nodes
-    figma.viewport.scrollAndZoomIntoView(nodes)
-    figma.closePlugin()
-  });
 
-  once<CloseHandler>('CLOSE', function () {
-    figma.closePlugin()
-  });
 };
 
 const isType = (props: any, action: string) => {
